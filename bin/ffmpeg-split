@@ -1,0 +1,65 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "usage: ffmpeg-split <file> [<segment-length> <overlap> <new_extension> <start_offset> <start_part>]"
+  echo "  file:           media file to split"
+  echo "  segment-length: duration per part in seconds; default: $[60 * 60] sec = 60 * 60 sec"
+  echo "  overlap:        overlap per part in seconds; default: 1"
+  echo "  new_extension:  e.g. 'mp4'; default to input files' extension"
+  echo "  start_offset:   start for output in seconds; default: 0"
+  echo "  start_part:     part number; default: 1"
+  exit 0
+  # ffmpeg-split input.m4a $[3 * 60 * 60 ] 1 mp4
+  # ffmpeg-split input.m4a $[2 * 60 * 60 ] 2 mp4 $[60 * 60] 2
+fi
+
+SRC=$( basename -- "$1" )
+EXT="${SRC##*.}"
+BASE="${SRC%.*}"
+# echo "ext:  ${EXT}"
+# echo "base: ${BASE}"
+
+TOTAL=$( ffprobe -i "${SRC}" -show_entries format=duration -v quiet -of csv="p=0" |awk -F. '{ print $1; }' )
+echo "total ${TOTAL} sec"
+if [ -z "${TOTAL}" ]; then
+  echo error
+  exit 1
+fi
+
+NEWEXT="$4"
+if [ -z "${NEWEXT}" ]; then
+  NEWEXT="${EXT}"
+fi
+
+OVERLAP="$3"
+if [ -z "${OVERLAP}" ]; then
+  OVERLAP="1"
+fi
+
+SEGLEN="$2"
+if [ -z "$SEGLEN" ]; then
+  SEGLEN=$[ 60 * 60 ]
+fi
+
+echo "seglen ${SEGLEN} overlap ${OVERLAP}"
+
+OFF="$5"
+if [ -z "${OFF}" ]; then
+  OFF="0"
+fi
+
+PART="$6"
+if [ -z "${PART}" ]; then
+  PART="1"
+fi
+
+echo "start offset ${OFF}  part ${PART}"
+
+
+while [ $OFF -lt $TOTAL ]; do
+  # echo "offset $OFF"
+  echo ffmpeg -i "${SRC}" -ss $OFF -t $[ ${SEGLEN} + ${OVERLAP} ] -c copy "${BASE}_part-${PART}_off-${OFF}s.${NEWEXT}"
+  ffmpeg -i "${SRC}" -ss $OFF -t $[ ${SEGLEN} + ${OVERLAP} ] -c copy "${BASE}_part-${PART}_off-${OFF}s.${NEWEXT}"
+  OFF=$[ ${OFF} + ${SEGLEN} ]
+  PART=$[ ${PART} + 1 ]
+done

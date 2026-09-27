@@ -1,0 +1,84 @@
+
+# ==================================================================
+# === HA's development environment
+# ==================================================================
+
+export CVSEDITOR=mcedit
+export EDITOR=mcedit
+export VISUAL=mcedit
+export MYSRC=$HOME/Sourcen
+
+if [ -d "$HOME/.local" ]; then
+  export PATH="$HOME/.local/bin:$PATH"
+fi
+
+# export CC=gcc-12
+# export CXX=g++-12
+if [ ! -z "$(which gcc-14)" ]; then
+  export CC=gcc-14
+  export CXX=g++-14
+fi
+if [ ! -z "$(which gcc-15)" ]; then
+  export CC=gcc-15
+  export CXX=g++-15
+fi
+
+export PATH=$PATH:$HOME/bin:$HOME/binpro
+# PYCHARM_ROOT="$HOME/pycharm-community-2021.2.2"
+#PYCHARM_ROOT="$HOME/pycharm-community-2022.1"
+# PYCHARM_ROOT="$HOME/pycharm-community-2022.2"
+# PYCHARM_ROOT="$HOME/pycharm-community-2023.1.3"
+# PYCHARM_ROOT="$HOME/pycharm-community-2022.3.3"
+# PYCHARM_ROOT="$HOME/pycharm-community-2023.3.2"
+PYCHARM_ROOT="$HOME/pycharm-community-2024.3.5"
+# PYCHARM_ROOT="$HOME/pycharm-2026.1"
+
+
+if [ -d "${PYCHARM_ROOT}/bin" ]; then
+  export PATH="$PATH:${PYCHARM_ROOT}/bin"
+  alias pycharm="${PYCHARM_ROOT}/bin/pycharm.sh &>/dev/null &"
+fi
+
+# pycharm starten, dann
+# File -> Settings -> Project: views -> Project Interpreter
+#   Zahnrad rechts oben; Show All; Edit
+#   python aus conan hinzufuegen und als default waehlen
+
+
+
+# ALIAS'es:
+# =========
+# ll Long List
+#
+# gu git pull --rebase
+# gp git push
+
+# gsl  git stash list
+# gss  git stash save
+# gsa  git stash apply
+# gsd  git stash drop
+
+# gst  git status
+# gco  git checkout
+
+lnsb_function () {
+  #erzeugt symbolischen Link im aktuellen Verzeichnis
+  # Parameter 1 Linkziel
+  B=$(basename "$1")
+  ln -s "$1" "$B"
+}
+
+if /bin/false; then
+    # QT CREATOR
+    # download from https://www.qt.io/offline-installers
+    # chmod a+x qt-creator-opensource-linux-x86_64-4.13.3.run
+    # ./qt-creator-opensource-linux-x86_64-4.13.3.run --proxy
+    #
+    #QCBIN="$HOME/qtcreator-10.0.2/bin/qtcreator"
+    #QCBIN="$HOME/qtcreator-11.0.3/bin/qtcreator"
+    QCBIN="$HOME/qtcreator-12.0.1/bin/qtcreator"
+    alias qc="$QCBIN \$QCSESSION >/dev/null 2>/dev/null &"
+
+    export MAKEFLAGS="-j 8"
+    export CTEST_PARALLEL_LEVEL="6"
+fi

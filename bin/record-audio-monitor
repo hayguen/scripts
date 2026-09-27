@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# sudo apt install pulseaudio-utils   # pactl, parec, pacat
+# sudo apt install faac               # aac encoder
+# sudo apt install pavucontrol        # mixer ..
+#
+#
+# https://unix.stackexchange.com/questions/611158/how-do-i-monitor-microphone-input
+# pactl load-module module-loopback
+# pactl load-module module-loopback latency_msec=1
+# pactl unload-module module-loopback
+# List output devices:       pactl list short sinks
+# List input  devices:       pactl list short sources
+# List active audio streams: pactl list short sink-inputs
+# List loaded modules:       pactl list short modules
+# for persistence: enter "load-module module-loopback" in /etc/pulse/default.pa
+#
+#
+# cli/alternative pipewire
+# pw-record -P '{ stream.capture.sink=true }' test.flac
+#
+# gui/alternative
+# https://ubuntuhandbook.org/index.php/2023/08/new-ppa-audio-recorder-ubuntu/
+# sudo add-apt-repository ppa:ubuntuhandbook1/audio-recorder
+# sudo apt update
+# sudo apt install audio-recorder
+# audio-recorder &>/dev/null &
+#
+# gui/alternative - theoretically with GUI
+# https://linuxvox.com/blog/ubuntu-audio-recorder/
+# sudo apt install simplescreenrecorder
+#
+# https://wiki.ubuntuusers.de/Audiodateien_umwandeln/
+# https://manpages.ubuntu.com/manpages/jammy/man1/faac.1.html
+#
+
+if [ "$1" == "mic" ]; then
+    N=$(pw-link -o | grep -c mixed_sink)
+    if [ $N -eq 0 ]; then
+        echo "creating mixed_sink .. from  pw-link -o"
+        pactl load-module module-null-sink sink_name=mixed_sink channel_map=stereo
+        pw-link alsa_output.usb-Yealink_Yealink_SP92_Speaker_3HA0000662-00.pro-output-0:monitor_AUX0 mixed_sink:playback_FL
+        pw-link alsa_output.usb-Yealink_Yealink_SP92_Speaker_3HA0000662-00.pro-output-0:monitor_AUX1 mixed_sink:playback_FR
+        pw-link alsa_input.usb-Yealink_Yealink_SP92_Speaker_3HA0000662-00.pro-input-0:capture_AUX0 mixed_sink:playback_FL
+        # pw-link alsa_input.usb-Yealink_Yealink_SP92_Speaker_3HA0000662-00.pro-input-0:capture_AUX0 mixed_sink:playback_FR
+    fi
+    DEV="mixed_sink.monitor"
+else
+    # pactl list short
+    # DEV="alsa_output.usb-Yealink_Yealink_SP92_Speaker_3HA0000662-00.analog-stereo.4.monitor"
+    # DEV="alsa_card.usb-Yealink_Yealink_SP92_Speaker_3HA0000662-00"
+    DEV="@DEFAULT_MONITOR@"
+fi
+
+echo "===================================="
+echo "pactl load-module module-loopback latency_msec=1  # to also record mic input"
+echo "pactl unload-module module-loopback               # when finished"
+echo "pavucontrol                                       # to check mixer settings"
+D=$(date +%Y-%m-%d_%H-%M-%S)
+FILE="$(pwd)/${D}_rec_audio.m4a"
+echo "recording audio to ${FILE} .."
+
+echo "===================================="
+parec -d "${DEV}" | faac -R 44100 -X -q0 --overwrite -w -o "${FILE}" -
+
+
+if [ "$1" == "mic" ]; then
+  MID=$(pactl list short modules |grep module-null-sink |grep sink_name=mixed_sink |awk '{print $1;}')
+  if [ -z "${MID}" ]; then
+    echo "Error finding null-sink module named mixed_sink"
+  else
+    echo "Unloading module null-sink named mixed_sink: ${MID}"
+    pactl unload-module ${MID}
+  fi
+fi
+
