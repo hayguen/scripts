@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "usage: <media-file>"
+  echo "media-file not given!"
+else
+  TOTALSECS=$( ffprobe -i "$1" -show_entries format=duration -v quiet -of csv="p=0" |awk -F. '{ print $1; }' )
+  echo $TOTALSECS
+  date -d@$TOTALSECS -u +%H:%M:%S
+fi
