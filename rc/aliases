@@ -1,0 +1,182 @@
+
+alias cls='clear'
+alias ll='ls -l --time-style=long-iso'
+alias llh='ls -alh --time-style=long-iso'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+
+unset -f NH
+
+function NH {
+  # outdated: dolphin
+  if [ -z "$1" ]; then
+    nautilus . &>/dev/null &
+  else
+    nautilus "$1" &>/dev/null &
+  fi
+}
+
+# git
+# https://codingspirit.de/dokuwiki/doku.php?id=development:git
+unalias gitinit 2>/dev/null
+unalias gitgpgagent 2>/dev/null
+unset gitinit
+unset gitgpgagent
+unset gitconfig_aliases
+unset gitconfig_local_hayguen
+
+gitgpgagent () {
+  if [ ! -f $HOME/.gnupg/gpg-agent.conf ]; then
+    mkdir -p $HOME/.gnupg
+    touch $HOME/.gnupg/gpg-agent.conf
+  fi
+  cat $HOME/.gnupg/gpg-agent.conf 2>/dev/null \
+   | grep -v ^default-cache-ttl \
+   | grep -v ^max-cache-ttl \
+   > /dev/shm/tmp_gpgagent.conf
+
+  echo "default-cache-ttl 86400" >>/dev/shm/tmp_gpgagent.conf
+  echo "max-cache-ttl 86400" >>/dev/shm/tmp_gpgagent.conf
+  if [ $(diff /dev/shm/tmp_gpgagent.conf $HOME/.gnupg/gpg-agent.conf |wc -l) -ne 0 ]; then
+    echo "updated $HOME/.gnupg/gpg-agent.conf"
+    cp /dev/shm/tmp_gpgagent.conf $HOME/.gnupg/gpg-agent.conf
+  fi
+  rm /dev/shm/tmp_gpgagent.conf
+  gpgconf --reload gpg-agent
+}
+
+
+gitinit () {
+  git config --global push.followTags true
+  git config --global core.editor "/usr/bin/geany -i"
+  git config --global diff.tool meld
+  git config --global difftool.prompt false
+}
+
+
+gitconfig_aliases () {
+  git config --global alias.st "status"
+  git config --global alias.br "branch"
+  git config --global alias.brl "branch -l"
+  git config --global alias.bra "branch -a"
+  git config --global alias.brdl "branch -d"
+  git config --global alias.brDl "branch -D"
+  git config --global alias.brdr "push origin --delete"
+  git config --global --unset alias.ci  # was "commit"
+  git config --global alias.u "pull --rebase"
+  git config --global alias.p "push"
+  git config --global alias.pf "push --force-with-lease"
+  git config --global alias.cm "commit"
+  git config --global alias.cma "commit --amend"
+  git config --global alias.cp "cherry-pick"
+  git config --global alias.co "checkout"
+  git config --global alias.re "rebase"
+  git config --global alias.df "diff"
+  git config --global alias.dt 'difftool'
+  git config --global alias.dc '!f() { git difftool -d "$1^1" "$1"; }; f'
+  git config --global --unset alias.lg  # was "log -p"
+  git config --global alias.lol "log --graph --decorate --pretty=oneline --abbrev-commit"
+  git config --global alias.lola "log --graph --decorate --pretty=oneline --abbrev-commit --all"
+  git config --global alias.ls "ls-files"
+  git config --global alias.ign "ls-files --others --exclude-standard"
+  git config --global alias.ignr "ls-files -o -i --exclude-standard"
+  git config --global alias.rup "remote update --prune"
+  git config --global alias.nt 'show -s'
+  git config --global alias.fl 'show --pretty="" --name-only'
+  git config --global alias.sshow '!f() { git stash show stash@{$*} -p; }; f'
+  git config --global alias.sa '!f() { git stash apply stash@{$*}; }; f'
+  git config --global alias.sd '!f() { git stash drop stash@{$*}; }; f'
+  git config --global alias.sl "stash list"
+  git config --global alias.ss "stash save"
+
+  # g nt <commit-id>                              # show note of a commit (or last commit)
+  # g fl <commit-id>                              # show files in a commit (or last commit)
+  # g dt <commit-id>^1  <commit-id>               # show diff from previouse commit to that commit - calls meld for one file after the other!
+  # g dt <commit-id>^1               <path/file>  # show diff from previouse commit to actual file - for that file
+  # g dt <commit-id>^1  <commit-id>  <path/file>  # show diff from previouse commit to that commit - for that file
+  # g dt -d <commit-id>^1  <commit-id>            # opens meld with tree of changed files
+  # g dc <commit-id>                              # opens meld with tree of changed files
+  #
+  # https://kparal.wordpress.com/2020/12/16/show-a-side-by-side-git-diff-on-any-commit-in-tig-using-meld/
+  # https://stackoverflow.com/questions/34119866/setting-up-and-using-meld-as-your-git-difftool-and-mergetool
+}
+
+alias g='git'
+alias gu='git pull --rebase'
+alias gp='git push'
+alias gpf='git push --force-with-lease'
+alias gsl='git stash list'
+alias gss='git stash save'
+alias gst='git status'
+alias gco='git checkout'
+
+unset -f glg
+unset -f glgx
+unset -f gsa
+unset -f gsd
+unset -f gmeld
+
+function glg {
+  # %<(25,trunc)  legt Breit fuer folgendes Feld fest
+  # %x09   waere Tabulator-Byte
+  # https://git-scm.com/docs/pretty-formats
+  if [ -z "$1" ]; then
+    git log --date="format-local:%a %Y-%m-%d %H:%M:%S" --pretty=format:"%<(12,trunc)%h %<(19,trunc)%an %<(23,trunc)%ad %s" -20 | nl
+  else
+    git log --date="format-local:%a %Y-%m-%d %H:%M:%S" --pretty=format:"%<(12,trunc)%h %<(19,trunc)%an %<(23,trunc)%ad %s" "$@" | nl
+  fi
+}
+
+function glgx {
+  # with additional commit date
+  if [ -z "$1" ]; then
+    git log --date="format-local:%a %Y-%m-%d %H:%M:%S" --pretty=format:"%<(12,trunc)%h %<(19,trunc)%an %<(23,trunc)%ad %<(23,trunc)%cd %s" -20 | nl
+  else
+    git log --date="format-local:%a %Y-%m-%d %H:%M:%S" --pretty=format:"%<(12,trunc)%h %<(19,trunc)%an %<(23,trunc)%ad %<(23,trunc)%cd %s" "$@" | nl
+  fi
+}
+
+function gsa {
+  # alias gsa='git stash apply'
+  # alias gsa 0='git stash apply stash@{0}'
+  # alias gsa 1='git stash apply stash@{1}'
+  if [ -z "$1" ]; then
+    echo "Error: missing parameter <n> or stash@{<n>}"
+    echo "Function: git stash apply stash@{<n>}"
+    echo "Usage: gsa <n>"
+  else
+    if [ "$1" -eq "$1" ] 2>/dev/null; then
+      git stash apply stash@{$1}
+    else
+      git stash apply "$@"
+    fi
+  fi
+}
+
+function gsd {
+  # alias gsd='git stash drop'
+  # alias gsd 0='git stash drop stash@{0}'
+  # alias gsd 1='git stash drop stash@{1}'
+  if [ -z "$1" ]; then
+    echo "Error: missing parameter <n> or stash@{<n>}"
+    echo "Function: git stash drop stash@{<n>}"
+    echo "Usage: gsd <n>"
+  else
+    if [ "$1" -eq "$1" ] 2>/dev/null; then
+      git stash drop stash@{$1}
+    else
+      git stash drop "$@"
+    fi
+  fi
+}
+
+function gmeld {
+  git difftool -y -t meld "$@"
+}
+
+alias gg='LANG=en git gui &'
+alias bggeany='geany &>/dev/null &'
+alias mc='. /usr/lib/mc/mc-wrapper.sh'
+alias meld.="meld . >/dev/null 2>/dev/null &"

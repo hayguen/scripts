@@ -1,0 +1,41 @@
+
+if [ -f /etc/profile ] ; then
+  source /etc/profile
+fi
+
+if [ -f /etc/bash.bashrc ] ; then
+  source /etc/bash.bashrc
+fi
+
+if [ -f $HOME/.bashrc ] ; then
+  source $HOME/.bashrc
+fi
+
+
+down_x_space () {
+  if [ -z "$1" ]; then
+    echo "Space URL missing! e.g. https://x.com/i/spaces/1qKDzWjajOOJV"
+  else
+    # $HOME/github/xspacedownloader/cli.py  "$1"  2>&1 |grep -v "for reading$"
+    $HOME/bin/down_x_space  "$1"  2>&1 |grep -v "for reading$"
+  fi
+}
+
+# source $HOME/sys_venv/bin/activate
+source $HOME/py313/bin/activate
+echo "python environment active"
+echo ""
+echo "tools (alias, functions or scripts):"
+echo "  - ffmpeg-split"
+echo "  - pa_cards_ctrl"
+echo "  - down_x_space"
+echo "  - tco_points_to.py"
+echo "  - transcribex.py"
+echo "  - transcript_to_html.py"
+echo ""
+
+if [ -d "/usr/local/cuda-13.4" ]; then
+  export PATH=${PATH}:/usr/local/cuda-13.4/bin
+  export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda-13.4/lib64
+fi
+
