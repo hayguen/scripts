@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "usage: secs2hms <seconds>"
+  exit 0
+fi
+date -d@$1 -u "+%H:%M:%S"

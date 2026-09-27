@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# see https://unix.stackexchange.com/questions/620961/disable-remove-audio-source-pulseaudio
+# List: any from: modules, sinks, sources, sink-inputs, source-outputs, clients, samples, cards
+# pactl list cards
+# pactl set-card-profile alsa_card.pci-0000_01_00.1 off
+
+
+CMD="$1"
+
+if [ -z "${CMD}" ]; then
+  echo "usage: $0 list"
+  echo "usage: $0 sel <grep>"
+  CMD="list"
+fi
+
+if [ "${CMD}" == "list" ]; then
+  pactl list short cards
+fi
+
+if [ "${CMD}" == "sel" ] && [ ! -z "$2" ]; then
+  for CARD in $(pactl list short cards | awk '{ print $2; }' | grep -v "$2"); do
+    echo -e "switch ${CARD}\t\toff"
+    pactl set-card-profile  ${CARD}  off
+  done
+  for CARD in $(pactl list short cards | awk '{ print $2; }' | grep "$2"); do
+    echo -e "switch ${CARD}\t\ton"
+    pactl set-card-profile  ${CARD}  on
+  done
+
+fi
