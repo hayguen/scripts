@@ -112,11 +112,71 @@ alias gss='git stash save'
 alias gst='git status'
 alias gco='git checkout'
 
+unset -f ghelpers
 unset -f glg
 unset -f glgx
 unset -f gsa
 unset -f gsd
+unset -f gsshowdtd
 unset -f gmeld
+
+function ghelpers {
+  cat <<EOF -
+git helper functions and aliases:
+  g st              gst   - status
+  gmeld                   - diff tool meld
+
+  glg  [-N]               - log - up to N (or 20) entries
+  glgx [-N]               - log with both timestamps
+  g lol                   - log pretty
+  g lola                  - log pretty all
+
+  g u               gu    - pull rebase
+  g p               gp    - push
+  g pf              gpf   - forced push (with lease)
+  g cm -m "msg"           - commit
+  g cma                   - commit amend
+  g cp                    - cherry-pick
+
+  g co              gco   - checkout
+  g re                    - rebase
+
+  g br                    - list branches
+  g brl                   - list local branches
+  g bra                   - list all branches - including remote
+  g brdl <branch>         - delete local branch
+  g brDl <branch>         - forced delete of local branch
+  g brdr <branch>         - delete remote branch
+
+  g df                    - diff
+  g dt                    - difftool
+  g dc                    - difftool ..
+
+  g ls                    - list git files
+  g ign                   - list ignored files
+  g ignr                  - list ignored files 2
+  g rup                   - remote update --prune
+  g nt                    - show -s
+  g fl                    - show --pretty ?
+
+  g sl              gsl   - stash list
+  g ss <msg>        gss   - stash save
+  g sa <no>         gsa   - stash apply
+  g sd <no>         gsd   - stash drop/delete
+  g sshow <no>            - stash: show diff
+  gsshowdtd <no>          - stash: difftool -d
+
+  g nt <commit-id>                                 - show note of a commit (or last commit)
+  g fl <commit-id>                                 - show files in a commit (or last commit)
+  g dt <commit-id>^1     <commit-id>               - show diff from previouse commit to that commit - calls meld for one file after the other!
+  g dt <commit-id>^1                  <path/file>  - show diff from previouse commit to actual file - for that file
+  g dt <commit-id>^1     <commit-id>  <path/file>  - show diff from previouse commit to that commit - for that file
+  g dt -d <commit-id>^1  <commit-id>               - opens meld with tree of changed files
+  g dc <commit-id>                                 - opens meld with tree of changed files
+
+EOF
+
+}
 
 function glg {
   # %<(25,trunc)  legt Breit fuer folgendes Feld fest
@@ -137,6 +197,11 @@ function glgx {
     git log --date="format-local:%a %Y-%m-%d %H:%M:%S" --pretty=format:"%<(12,trunc)%h %<(19,trunc)%an %<(23,trunc)%ad %<(23,trunc)%cd %s" "$@" | nl
   fi
 }
+
+# gsa requires additions in .gitconfig git config --global -e :
+# [alias]
+# sshow = "!f() { git stash show stash^{/$*} -p; }; f"
+# sapply = "!f() { git stash apply stash^{/$*}; }; f"
 
 function gsa {
   # alias gsa='git stash apply'
@@ -171,6 +236,22 @@ function gsd {
     fi
   fi
 }
+
+function gsshowdtd {
+  # git difftool -d stash@{1}^1 stash@{1}
+  if [ -z "$1" ]; then
+    echo "Error: missing parameter <n> or stash@{<n>}"
+    echo "Function: g dt -d .. == git difftool -d stash@{<n>}^1 stash@{<n>}"
+    echo "Usage: gsshowdtd <n>"
+  else
+    if [ "$1" -eq "$1" ] 2>/dev/null; then
+      git difftool -d stash@{$1}^1 stash@{$1}
+    else
+      git difftool -d "$@"
+    fi
+  fi
+}
+
 
 function gmeld {
   git difftool -y -t meld "$@"
