@@ -49,12 +49,25 @@ gitgpgagent () {
 
 
 gitinit () {
+  if [ -z "$1" ] || [ "$1" = "github" ]; then
+    git config --global user.name "hayati ayguen"
+    git config --global user.email "h_ayguen@web.de"
+    git config --global core.sshCommand "ssh -i ~/.ssh/github_rsa -F /dev/null"
+  else
+    echo "error: unknown parameter to gitinit!"
+  fi
   git config --global push.followTags true
   git config --global core.editor "/usr/bin/geany -i"
   git config --global diff.tool meld
   git config --global difftool.prompt false
 }
 
+
+gitconfig_local_hayguen () {
+  git config --local user.name "hayati ayguen"
+  git config --local user.email "h_ayguen@web.de"
+  git config --local core.sshCommand "ssh -i ~/.ssh/github_rsa -F /dev/null"
+}
 
 gitconfig_aliases () {
   git config --global alias.st "status"
@@ -72,7 +85,9 @@ gitconfig_aliases () {
   git config --global alias.cma "commit --amend"
   git config --global alias.cp "cherry-pick"
   git config --global alias.co "checkout"
-  git config --global alias.re "rebase"
+  git config --global --unset alias.re
+  git config --global alias.rb "rebase"
+  git config --global alias.rbi '!f() { git rebase -i HEAD~$1; }; f'
   git config --global alias.df "diff"
   git config --global alias.dt 'difftool'
   git config --global alias.dc '!f() { git difftool -d "$1^1" "$1"; }; f'
@@ -80,6 +95,7 @@ gitconfig_aliases () {
   git config --global alias.lol "log --graph --decorate --pretty=oneline --abbrev-commit"
   git config --global alias.lola "log --graph --decorate --pretty=oneline --abbrev-commit --all"
   git config --global alias.ls "ls-files"
+  git config --global alias.lsmod "diff-tree --no-commit-id --name-only -r"
   git config --global alias.ign "ls-files --others --exclude-standard"
   git config --global alias.ignr "ls-files -o -i --exclude-standard"
   git config --global alias.rup "remote update --prune"
@@ -112,11 +128,73 @@ alias gss='git stash save'
 alias gst='git status'
 alias gco='git checkout'
 
+unset -f ghelpers
 unset -f glg
 unset -f glgx
 unset -f gsa
 unset -f gsd
+unset -f gsshowdtd
 unset -f gmeld
+
+function ghelpers {
+  cat <<EOF -
+git helper functions and aliases:
+  g st              gst       - status
+  gmeld                       - diff tool meld
+
+  glg  [-N]                   - log - up to N (or 20) entries
+  glgx [-N]                   - log with both timestamps
+  g lol                       - log pretty
+  g lola                      - log pretty all
+
+  g u               gu        - pull --rebase
+  g p               gp        - push
+  g pf              gpf       - forced push --force-with-lease
+  g cm -m "msg"               - commit
+  g cma                       - commit amend
+  g cp                        - cherry-pick
+
+  g co              gco       - checkout
+  g rb                        - rebase
+  g rbi <N>                   - rebase -i HEAD~<N>
+
+  g br                        - list branches
+  g brl                       - list local branches
+  g bra                       - list all branches - including remote
+  g brdl <branch>             - delete local branch
+  g brDl <branch>             - forced delete of local branch
+  g brdr <branch>             - delete remote branch
+
+  g df                        - diff
+  g dt                        - difftool
+  g dc                        - difftool ..
+
+  g ls                        - list git files
+  g lsmod <commit-id> [<id2>] - list modified files in / between commits
+  g ign                       - list ignored files
+  g ignr                      - list ignored files 2
+  g rup                       - remote update --prune
+  g nt                        - show -s
+  g fl                        - show --pretty ?
+
+  g sl              gsl       - stash list
+  g ss <msg>        gss       - stash save
+  g sa <no>         gsa       - stash apply
+  g sd <no>         gsd       - stash drop/delete
+  g sshow <no>                - stash: show diff
+  gsshowdtd <no>              - stash: difftool -d
+
+  g nt <commit-id>                                 - show note of a commit (or last commit)
+  g fl <commit-id>                                 - show files in a commit (or last commit)
+  g dt <commit-id>^1     <commit-id>               - show diff from previouse commit to that commit - calls meld for one file after the other!
+  g dt <commit-id>^1                  <path/file>  - show diff from previouse commit to actual file - for that file
+  g dt <commit-id>^1     <commit-id>  <path/file>  - show diff from previouse commit to that commit - for that file
+  g dt -d <commit-id>^1  <commit-id>               - opens meld with tree of changed files
+  g dc <commit-id>                                 - opens meld with tree of changed files
+
+EOF
+
+}
 
 function glg {
   # %<(25,trunc)  legt Breit fuer folgendes Feld fest
@@ -137,6 +215,11 @@ function glgx {
     git log --date="format-local:%a %Y-%m-%d %H:%M:%S" --pretty=format:"%<(12,trunc)%h %<(19,trunc)%an %<(23,trunc)%ad %<(23,trunc)%cd %s" "$@" | nl
   fi
 }
+
+# gsa requires additions in .gitconfig git config --global -e :
+# [alias]
+# sshow = "!f() { git stash show stash^{/$*} -p; }; f"
+# sapply = "!f() { git stash apply stash^{/$*}; }; f"
 
 function gsa {
   # alias gsa='git stash apply'
@@ -172,6 +255,22 @@ function gsd {
   fi
 }
 
+function gsshowdtd {
+  # git difftool -d stash@{1}^1 stash@{1}
+  if [ -z "$1" ]; then
+    echo "Error: missing parameter <n> or stash@{<n>}"
+    echo "Function: g dt -d .. == git difftool -d stash@{<n>}^1 stash@{<n>}"
+    echo "Usage: gsshowdtd <n>"
+  else
+    if [ "$1" -eq "$1" ] 2>/dev/null; then
+      git difftool -d stash@{$1}^1 stash@{$1}
+    else
+      git difftool -d "$@"
+    fi
+  fi
+}
+
+
 function gmeld {
   git difftool -y -t meld "$@"
 }
@@ -180,3 +279,5 @@ alias gg='LANG=en git gui &'
 alias bggeany='geany &>/dev/null &'
 alias mc='. /usr/lib/mc/mc-wrapper.sh'
 alias meld.="meld . >/dev/null 2>/dev/null &"
+alias cmbuild='cmake --build . --target'
+
