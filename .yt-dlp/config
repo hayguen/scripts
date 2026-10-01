@@ -1,0 +1,14 @@
+
+--write-link
+--write-subs
+--embed-subs
+--embed-metadata
+--embed-chapters
+
+--convert-thumbnails jpg
+
+--js-runtimes deno:/home/ayguen/.deno/bin/deno
+
+--restrict-filenames
+--mtime
+-o "%(upload_date>%Y-%m-%d)s_%(title)s.%(ext)s"
