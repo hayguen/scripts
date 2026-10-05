@@ -1,11 +1,62 @@
 #!/bin/bash
 
 # see https://unix.stackexchange.com/questions/620961/disable-remove-audio-source-pulseaudio
+# https://shallowsky.com/blog/linux/pipewire-output-sinks.html
+# https://linuxmusicians.com/viewtopic.php?t=27008
+#
 # requires pactl from package pulseaudio-utils
 # List: any from: modules, sinks, sources, sink-inputs, source-outputs, clients, samples, cards
-# pactl list cards
+# pactl list cards short
 # pactl set-card-profile alsa_card.pci-0000_01_00.1 off
 
+# bestimmte Soundkarten ganz ausschliessen (Soundkarten-Namen aus pactl list cards short)
+#   wpctl status
+#   wpctl inspect ID  | grep node.name
+# mkdir -p ~/.config/wireplumber/wireplumber.conf.d
+# nano ~/.config/wireplumber/wireplumber.conf.d/disable-soundcard.conf
+# # siehe tests/SETUP/configs_home/.config/wireplumber/wireplumber.conf.d/disable-soundcard.conf
+# systemctl --user restart wireplumber
+# systemctl --user restart pipewire pipewire-pulse wireplumber
+#
+
+# Virtuelles Mikrofon einrichten
+# pactl load-module module-null-sink media.class=Audio/Source/Virtual sink_name=Virtuelles_Mikrofon channels=1 channel_map=mono
+# pactl load-module module-null-sink media.class=Audio/Source/Virtual sink_name=Virtuelles_Mikrofon channels=2 channel_map=stereo
+#
+# wieder entfernen
+# pactl unload-module $(pactl list short modules | grep "Virtuelles_Mikrofon" | cut -f1)
+
+# Echtes Mikrofon mit virtuellem verbinden
+# pw-link   alsa_input.usb-Yealink_Yealink_SP92_Speaker_3HA0000662-00.mono-fallback:capture_MONO    Virtuelles_Mikrofon:input_MONO
+# # pw-link   ECHT  VIRTUELL  mit
+# #   ECHT: aus        pw-link -o |grep Yealink |grep MONO
+# #   VIRTUELL: aus    pw-link -i |grep Virtuelles_Mikrofon
+
+# VLC mit virtuellem Mikro verbinden
+# pw-link -o |grep VLC |head -n 1
+# #   VLC media player (LibVLC 3.0.23):output_FL
+# pw-link "VLC media player (LibVLC 3.0.23):output_FL" Virtuelles_Mikrofon:input_MONO
+# pw-link "$(pw-link -o |grep VLC |head -n 1)"   Virtuelles_Mikrofon:input_MONO
+
+# PipeWire Verknüpfungen manuell in GUI setzen - sudo apt install qpwgraph
+# qpwgraph
+
+# PipeWire/PulseAudio default Quelle setzen
+# pactl set-default-source Virtuelles_Mikrofon
+
+# manuelle Einrichtung von Quelle und Senke je Programm
+# pavucontrol
+
+# linux-soundboard  # https://github.com/germanua/Linux-SoundBoard
+# sudo apt install easyeffects  # https://github.com/wwmm/easyeffects
+#
+# sudo apt install flatpak gnome-software-plugin-flatpak -y
+# flatpak install soundux
+# flatpak run io.github.Soundux
+#
+# aac aufzeichnen
+# ffmpeg -f pulse -i default             -c:a aac -b:a 128k -f segment -segment_time 30 audio_%03d.aac
+# ffmpeg -f pulse -i Virtuelles_Mikrofon -c:a aac -b:a 128k -f segment -segment_time 30 audio_%03d.aac
 
 CMD="$1"
 
