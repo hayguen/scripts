@@ -49,12 +49,25 @@ gitgpgagent () {
 
 
 gitinit () {
+  if [ -z "$1" ] || [ "$1" = "github" ]; then
+    git config --global user.name "hayati ayguen"
+    git config --global user.email "h_ayguen@web.de"
+    git config --global core.sshCommand "ssh -i ~/.ssh/github_rsa -F /dev/null"
+  else
+    echo "error: unknown parameter to gitinit!"
+  fi
   git config --global push.followTags true
   git config --global core.editor "/usr/bin/geany -i"
   git config --global diff.tool meld
   git config --global difftool.prompt false
 }
 
+
+gitconfig_local_hayguen () {
+  git config --local user.name "hayati ayguen"
+  git config --local user.email "h_ayguen@web.de"
+  git config --local core.sshCommand "ssh -i ~/.ssh/github_rsa -F /dev/null"
+}
 
 gitconfig_aliases () {
   git config --global alias.st "status"
@@ -131,9 +144,9 @@ git helper functions and aliases:
   g lol                   - log pretty
   g lola                  - log pretty all
 
-  g u               gu    - pull rebase
+  g u               gu    - pull --rebase
   g p               gp    - push
-  g pf              gpf   - forced push (with lease)
+  g pf              gpf   - forced push --force-with-lease
   g cm -m "msg"           - commit
   g cma                   - commit amend
   g cp                    - cherry-pick
@@ -261,3 +274,5 @@ alias gg='LANG=en git gui &'
 alias bggeany='geany &>/dev/null &'
 alias mc='. /usr/lib/mc/mc-wrapper.sh'
 alias meld.="meld . >/dev/null 2>/dev/null &"
+alias cmbuild='cmake --build . --target'
+

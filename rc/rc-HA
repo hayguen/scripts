@@ -3,7 +3,6 @@
 # === HA's development environment
 # ==================================================================
 
-export CVSEDITOR=mcedit
 export EDITOR=mcedit
 export VISUAL=mcedit
 export MYSRC=$HOME/Sourcen
@@ -50,16 +49,15 @@ fi
 # =========
 # ll Long List
 #
-# gu git pull --rebase
-# gp git push
+# TA Tests in Afs
+# TD Debug TestAPC
+# TR Release TestAPC
+# S  Sources
+# rb Release Bin
+# ri Release Install
+# db Debug Bin
+# di Debug Install
 
-# gsl  git stash list
-# gss  git stash save
-# gsa  git stash apply
-# gsd  git stash drop
-
-# gst  git status
-# gco  git checkout
 
 lnsb_function () {
   #erzeugt symbolischen Link im aktuellen Verzeichnis
