@@ -93,6 +93,7 @@ gitconfig_aliases () {
   git config --global alias.lol "log --graph --decorate --pretty=oneline --abbrev-commit"
   git config --global alias.lola "log --graph --decorate --pretty=oneline --abbrev-commit --all"
   git config --global alias.ls "ls-files"
+  git config --global alias.lsmod "diff-tree --no-commit-id --name-only -r"
   git config --global alias.ign "ls-files --others --exclude-standard"
   git config --global alias.ignr "ls-files -o -i --exclude-standard"
   git config --global alias.rup "remote update --prune"
@@ -136,48 +137,49 @@ unset -f gmeld
 function ghelpers {
   cat <<EOF -
 git helper functions and aliases:
-  g st              gst   - status
-  gmeld                   - diff tool meld
+  g st              gst       - status
+  gmeld                       - diff tool meld
 
-  glg  [-N]               - log - up to N (or 20) entries
-  glgx [-N]               - log with both timestamps
-  g lol                   - log pretty
-  g lola                  - log pretty all
+  glg  [-N]                   - log - up to N (or 20) entries
+  glgx [-N]                   - log with both timestamps
+  g lol                       - log pretty
+  g lola                      - log pretty all
 
-  g u               gu    - pull --rebase
-  g p               gp    - push
-  g pf              gpf   - forced push --force-with-lease
-  g cm -m "msg"           - commit
-  g cma                   - commit amend
-  g cp                    - cherry-pick
+  g u               gu        - pull --rebase
+  g p               gp        - push
+  g pf              gpf       - forced push --force-with-lease
+  g cm -m "msg"               - commit
+  g cma                       - commit amend
+  g cp                        - cherry-pick
 
-  g co              gco   - checkout
-  g re                    - rebase
+  g co              gco       - checkout
+  g re                        - rebase
 
-  g br                    - list branches
-  g brl                   - list local branches
-  g bra                   - list all branches - including remote
-  g brdl <branch>         - delete local branch
-  g brDl <branch>         - forced delete of local branch
-  g brdr <branch>         - delete remote branch
+  g br                        - list branches
+  g brl                       - list local branches
+  g bra                       - list all branches - including remote
+  g brdl <branch>             - delete local branch
+  g brDl <branch>             - forced delete of local branch
+  g brdr <branch>             - delete remote branch
 
-  g df                    - diff
-  g dt                    - difftool
-  g dc                    - difftool ..
+  g df                        - diff
+  g dt                        - difftool
+  g dc                        - difftool ..
 
-  g ls                    - list git files
-  g ign                   - list ignored files
-  g ignr                  - list ignored files 2
-  g rup                   - remote update --prune
-  g nt                    - show -s
-  g fl                    - show --pretty ?
+  g ls                        - list git files
+  g lsmod <commit-id> [<id2>] - list modified files in / between commits
+  g ign                       - list ignored files
+  g ignr                      - list ignored files 2
+  g rup                       - remote update --prune
+  g nt                        - show -s
+  g fl                        - show --pretty ?
 
-  g sl              gsl   - stash list
-  g ss <msg>        gss   - stash save
-  g sa <no>         gsa   - stash apply
-  g sd <no>         gsd   - stash drop/delete
-  g sshow <no>            - stash: show diff
-  gsshowdtd <no>          - stash: difftool -d
+  g sl              gsl       - stash list
+  g ss <msg>        gss       - stash save
+  g sa <no>         gsa       - stash apply
+  g sd <no>         gsd       - stash drop/delete
+  g sshow <no>                - stash: show diff
+  gsshowdtd <no>              - stash: difftool -d
 
   g nt <commit-id>                                 - show note of a commit (or last commit)
   g fl <commit-id>                                 - show files in a commit (or last commit)
