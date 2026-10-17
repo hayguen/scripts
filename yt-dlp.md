@@ -30,6 +30,8 @@ cat >$HOME/.yt-dlp/config <<EOF
 --embed-metadata
 --embed-chapters
 
+--convert-thumbnails jpg
+
 --js-runtimes deno:$HOME/.deno/bin/deno
 
 --audio-multistreams
@@ -63,6 +65,9 @@ options
 * `-k` to keep single sepearate streams, e.g. the audio
 * `-x` to download only the audio
 * `--write-all-thumbnails`
+
+* retrieve (only) the thumbnail `yt-dlp --write-thumbnail --skip-download <video>`"
+  * also note `--convert-thumbnails jpg`
 
 
 ```
