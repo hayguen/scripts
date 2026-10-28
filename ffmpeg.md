@@ -23,6 +23,15 @@ download, unpack and copy to `$HOME/bin/`
 * https://github.com/BtbN/FFmpeg-Builds
 * https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/latest
 
+### GUI
+
+* https://www.ffmpeg-micro.com/blog/the-best-gui-for-ffmpeg-and-when-you-don-t-need-one
+* https://handbrake.fr/
+
+```
+sudo apt install handbrake
+```
+
 
 ## convert / cut
 
