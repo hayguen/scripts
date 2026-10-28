@@ -72,7 +72,7 @@ if media_file.endswith(".aac"):
     else:
         print(f"converting media to .mp4 '{mp4}' - necessary for quick jumps.")
         print(f"ffmpeg -i {media_file} -c:v copy -c:a aac {mp4}")
-        subprocess.run(['ffmpeg', '-i', media_file, "-c:v", "copy", "-c:a", "aac", mp4])
+        subprocess.run(['ffmpeg', '-i', media_file, "-c:v", "copy", "-c:a", "aac", mp4], check=False)
     media_file = mp4
 
 print()

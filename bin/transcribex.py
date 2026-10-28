@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from dotenv import dotenv_values
 from typing import Final
+
+from dotenv import dotenv_values
 
 # Load variables from the '.env' into dict
 config: Final = dotenv_values()
@@ -21,11 +22,10 @@ if not HF_TOKEN:
 
 import sys
 import time
-import whisperx
-import gc
-from whisperx.diarize import DiarizationPipeline
-from datetime import datetime
 from pathlib import Path
+
+import whisperx
+from whisperx.diarize import DiarizationPipeline
 
 print(10*"=" + " 1")
 
@@ -145,19 +145,19 @@ batch_size = 8 # reduce if low on GPU mem; 16 for cpu: ok
 
 def usage():
     # print(f"have {len(sys.argv)} args")
-    print("")
-    print("")
+    print()
+    print()
     print("missing audio file and transcript arguments!")
     print(f"usage: {sys.argv[0]} <audio input file> [[lang=]<lang>] [out=<transcript output file>|off=<sec_offset>|batch=<size>|<device>|<model>|<quantization>|help]*")
     print(f"language: 'auto', 'fr', 'de', .., 'lang=..', default: '{dflt_lang}'")
-    print(f"sec_offset: add given offset (in seconds) to output times")
+    print("sec_offset: add given offset (in seconds) to output times")
     print(f"batch:  sets batch size, default: {batch_size}")
     print(f"device in {all_devices} , default: '{dflt_device}'")
     print(f"model in {all_models} , default: '{model_s}'")
     print(f"quantization in {all_quants} , default: '{dflt_quant}'")
-    print(f"    float32:  exponent: 8 bits, mantissa: 23 bits")
-    print(f"    float16:  exponent: 5 bits, mantissa: 10 bits")
-    print(f"    bfloat16: exponent: 8 bits, mantissa:  7 bits")
+    print("    float32:  exponent: 8 bits, mantissa: 23 bits")
+    print("    float16:  exponent: 5 bits, mantissa: 10 bits")
+    print("    bfloat16: exponent: 8 bits, mantissa:  7 bits")
     sys.exit(0)
 
 if len(sys.argv) < 2:
@@ -214,7 +214,7 @@ while True:  # CLI parsing
             batch_size = 16
             quant_s = "int16"
         else:
-            print(f"warning: unknown device!")
+            print("warning: unknown device!")
         print(f"{device_s} -> {batch_size=}, {quant_s=}")
         continue
 
@@ -257,7 +257,7 @@ t_start = time.time()
 model = whisperx.load_model(model_s, device=device_s, compute_type=quant_s)
 
 dt = round(time.time() - t_start, 2)
-print("%.2fs: WhisperModel() created." % dt)
+print(f"{dt:.2f}s: WhisperModel() created.")
 
 if narg < len(sys.argv) and sys.argv[narg] in ["help", "-help", "-h"]:
     help(model)
@@ -273,14 +273,14 @@ print(10*"=" + " 3")
 audio = whisperx.load_audio(audio_file)
 
 dt = round(time.time() - t_start, 2)
-print("%.2fs: load_audio() finished." % dt)
+print(f"{dt:.2f}s: load_audio() finished.")
 
 print(10*"=" + " 4")
 result = model.transcribe(audio, batch_size=batch_size, language=lang_s)
 
-print("")
+print()
 dt = round(time.time() - t_start, 2)
-print("%.2fs: transcribe() finished." % dt)
+print(f"{dt:.2f}s: transcribe() finished.")
 
 print(10*"=" + " 5")
 
@@ -296,14 +296,14 @@ print(30*"*" + " BEFORE ALIGNMENT")
 
 model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device_s)
 dt = round(time.time() - t_start, 2)
-print("%.2fs: load_align_model() finished." % dt)
+print(f"{dt:.2f}s: load_align_model() finished.")
 
 # print(f"{metadata=}")
 # print(f"{model_a=}")
 result = whisperx.align(result["segments"], model_a, metadata, audio, device_s, return_char_alignments=False)
 
 dt = round(time.time() - t_start, 2)
-print("%.2fs: align() finished." % dt)
+print(f"{dt:.2f}s: align() finished.")
 
 print(30*"*" + " AFTER ALIGNMENT")
 # print(result["segments"]) # after alignment
@@ -313,7 +313,7 @@ print(30*"*" + " DIARIZE ..")
 diarize_model = DiarizationPipeline(token=HF_TOKEN, device=device_s)
 
 dt = round(time.time() - t_start, 2)
-print("%.2fs: DiarizationPipeline() created." % dt)
+print(f"{dt:.2f}s: DiarizationPipeline() created.")
 
 print(30*"*" + " DIARIZE .. 2")
 
@@ -321,14 +321,14 @@ diarize_segments = diarize_model(audio)
 # diarize_model(audio, min_speakers=min_speakers, max_speakers=max_speakers)
 
 dt = round(time.time() - t_start, 2)
-print("%.2fs: diarize_model() finished." % dt)
+print(f"{dt:.2f}s: diarize_model() finished.")
 
 print(30*"*" + " DIARIZE .. 3")
 
 result = whisperx.assign_word_speakers(diarize_segments, result)
 
 dt = round(time.time() - t_start, 2)
-print("%.2fs: assign_word_speakers() finished." % dt)
+print(f"{dt:.2f}s: assign_word_speakers() finished.")
 
 print(30*"*" + " DIARIZE .. 4")
 print(diarize_segments)
@@ -372,10 +372,10 @@ with open(transcript_file, "w") as f:
         f.flush()
 
     dt = round(time.time() - t_start, 2)
-    print("# %.2fs: WhisperModel() initialized with audio file." % dt)
-    print("# %.2fs: WhisperModel() initialized with audio file." % dt, file=f)
-    print("# Detected language '%s'" % (metadata["language"],))
-    print("# Detected language '%s'" % (metadata["language"],), file=f)
+    print(f"# {dt:.2f}s: WhisperModel() initialized with audio file.")
+    print(f"# {dt:.2f}s: WhisperModel() initialized with audio file.", file=f)
+    print("# Detected language '{}'".format(metadata["language"]))
+    print("# Detected language '{}'".format(metadata["language"]), file=f)
     print("#", file=f)
     print("#[SPEAKER_NN] SHOWNAME		URL", file=f)
     print("#[SPEAKER_NN] SHOWNAME", file=f)
@@ -390,8 +390,8 @@ with open(transcript_file, "w") as f:
         # print(segment)
         start_off = start + sec_offset
         stop_off = stop + sec_offset
-        print("[%.2fs -> %.2fs] %s : %s" % (start_off, stop_off, speaker, text))
-        print("[%.2fs -> %.2fs] %s : %s" % (start_off, stop_off, speaker, text), file=f)
+        print(f"[{start_off:.2f}s -> {stop_off:.2f}s] {speaker} : {text}")
+        print(f"[{start_off:.2f}s -> {stop_off:.2f}s] {speaker} : {text}", file=f)
         f.flush()
 
     t_end = time.time()
