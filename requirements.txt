@@ -3,6 +3,8 @@ yt-dlp>=2023.12.30  # 2026.8.19
 whisperx==3.8.5
 python-dotenv  # 1.2.3
 nvitop  # 1.7.1
+pygame
+ruff
 # torch==2.8.0
 # transformers==4.57.6
 # tokenizers==0.22.2
