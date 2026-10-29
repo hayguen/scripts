@@ -1,0 +1,64 @@
+
+alias cls='clear'
+alias ll='ls -l --time-style=long-iso'
+alias llh='ls -alh --time-style=long-iso'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+
+unset -f NH
+
+function NH {
+  # outdated: dolphin
+  if [ -z "$1" ]; then
+    nautilus . &>/dev/null &
+  else
+    nautilus "$1" &>/dev/null &
+  fi
+}
+
+# Source - https://superuser.com/a/753948
+# Posted by Guillaume Perrault-Archambault, modified by community. See post 'Timeline' for change history
+# Retrieved 2026-10-29, License - CC BY-SA 3.0
+
+unset -f pathappend
+
+pathappend() {
+  for ARG in "$@"
+  do
+    if [ -d "$ARG" ] && [[ ":$PATH:" != *":$ARG:"* ]]; then
+        PATH="${PATH:+"$PATH:"}$ARG"
+    fi
+  done
+}
+
+# Source - https://superuser.com/a/753948
+# Posted by Guillaume Perrault-Archambault, modified by community. See post 'Timeline' for change history
+# Retrieved 2026-10-29, License - CC BY-SA 3.0
+
+unset -f pathprepend
+
+pathprepend() {
+  for ((i=$#; i>0; i--));
+  do
+    ARG=${!i}
+    if [ -d "$ARG" ] && [[ ":$PATH:" != *":$ARG:"* ]]; then
+        PATH="$ARG${PATH:+":$PATH"}"
+    fi
+  done
+}
+
+alias docs='cd $HOME/Documents'
+alias vp='cd $HOME/Documents/Verfahren-Pakete'
+alias sigs='cd $HOME/Documents/signale'
+
+
+alias gg='LANG=en git gui &'
+alias bggeany='geany &>/dev/null &'
+alias mc='. /usr/lib/mc/mc-wrapper.sh'
+alias meld.="meld . >/dev/null 2>/dev/null &"
+alias cmbuild='cmake --build . --target'
+
+alias CTEST="PYTEST_ADDOPTS=-s ctest -V"
+alias PYTEST="PYTEST_ADDOPTS=-s pytest -v"

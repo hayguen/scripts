@@ -3,6 +3,8 @@
 # === HA's development environment
 # ==================================================================
 
+. ~/rc/base_aliases
+
 export EDITOR=mcedit
 export VISUAL=mcedit
 export MYSRC=$HOME/Sourcen
@@ -28,7 +30,8 @@ PYCHARM_ROOT="$HOME/pycharm-2026.2.3"
 
 
 if [ -d "${PYCHARM_ROOT}/bin" ]; then
-  export PATH="$PATH:${PYCHARM_ROOT}/bin"
+  pathappend "${PYCHARM_ROOT}/bin"
+  export PATH
   alias pycharm="${PYCHARM_ROOT}/bin/pycharm.sh &>/dev/null &"
 fi
 
@@ -70,6 +73,7 @@ if /bin/false; then
     #QCBIN="$HOME/qtcreator-11.0.3/bin/qtcreator"
     #QCBIN="$HOME/qtcreator-12.0.1/bin/qtcreator"
     QCBIN="$HOME/qtcreator-20.0.2/bin/qtcreator"
+    unalias qc 2>/dev/null
     alias qc="$QCBIN \$QCSESSION >/dev/null 2>/dev/null &"
     alias pyqc="$QCBIN python >/dev/null 2>/dev/null &"
 

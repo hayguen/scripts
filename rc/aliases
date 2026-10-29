@@ -1,22 +1,6 @@
 
-alias cls='clear'
-alias ll='ls -l --time-style=long-iso'
-alias llh='ls -alh --time-style=long-iso'
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias .....='cd ../../../..'
+. ~/rc/base_aliases
 
-unset -f NH
-
-function NH {
-  # outdated: dolphin
-  if [ -z "$1" ]; then
-    nautilus . &>/dev/null &
-  else
-    nautilus "$1" &>/dev/null &
-  fi
-}
 
 # git
 # https://codingspirit.de/dokuwiki/doku.php?id=development:git
@@ -275,9 +259,29 @@ function gmeld {
   git difftool -y -t meld "$@"
 }
 
-alias gg='LANG=en git gui &'
-alias bggeany='geany &>/dev/null &'
-alias mc='. /usr/lib/mc/mc-wrapper.sh'
-alias meld.="meld . >/dev/null 2>/dev/null &"
-alias cmbuild='cmake --build . --target'
 
+
+unset -f cmtargets
+
+function cmtargets {
+        if [ -z "$*" ]; then
+            cmake --build . --target help |sed 's/^... //g'
+        else
+            cmake --build . --target help |sed 's/^... //g' |grep "$@"
+        fi
+    fi
+}
+
+
+# QT CREATOR -> in ~/rc/rc-HA
+# download from https://www.qt.io/offline-installers
+# chmod +x qt-creator-opensource-linux-x86_64-20.0.2.run
+# ./qt-creator-opensource-linux-x86_64-20.0.2.run
+# ./qt-creator-opensource-linux-x86_64-20.0.2.run --proxy
+QCBIN="$HOME/qtcreator-20.0.2/bin/qtcreator"
+unalias qc 2>/dev/null
+alias qc="$QCBIN \$QCSESSION >/dev/null 2>/dev/null &"
+# alias pyqc="$QCBIN python >/dev/null 2>/dev/null &"
+
+
+. ~/rc/complete_alias
