@@ -4,6 +4,7 @@
 # ==================================================================
 
 . ~/rc/base_aliases
+. ~/rc/git_aliases
 
 export EDITOR=mcedit
 export VISUAL=mcedit
