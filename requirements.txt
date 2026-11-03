@@ -10,3 +10,15 @@ ruff
 # tokenizers==0.22.2
 # requests==2.34.2
 # ctranslate2==4.8.2
+#
+# pip install --upgrade -r requirements.txt
+# pip install --upgrade pip
+#
+# pip install --upgrade yt-dlp
+# pip install -U --pre yt-dlp
+# python3 -m pip install -U --pre yt-dlp
+#
+# pip install --upgrade nvitop
+# pip install --upgrade python-dotenv
+# pip install --upgrade pygame
+# pip install --upgrade ruff
