@@ -170,6 +170,15 @@ The first 0 identifies the input file, which will always be 0 when working with 
 [SRT format](https://www.3playmedia.com/blog/create-srt-file/)
 
 
+## encoding with NVidia GPU acceleration
+
+look for video codecs 'h264_nvenc' (H.264) or 'hevc_nvenc' (H.265/HEVC) in
+`ffmpeg -encoders | grep -E nvenc`
+
+* https://publit.io/community/blog/ffmpeg-use-gpu
+* https://docs.nvidia.com/video-technologies/video-codec-sdk/13.0/ffmpeg-with-nvidia-gpu/index.html
+
+
 ## cheat sheet
 
 [cheat sheet](https://gist.github.com/steven2358/ba153c642fe2bb1e47485962df07c730)
