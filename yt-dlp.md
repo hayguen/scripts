@@ -103,6 +103,37 @@ utilizing `down_x_space` python script and bash function filtering the noise
 down_x_space https://x.com/i/spaces/1jGXggOwOMEKZ
 ```
 
+## compile yt-dlp with fix for Twitter/X Spaces
+
+yt-dlp doesn't download Twitter/X-Spaces any longer (2026-11-05) - since some days.
+
+```
+cd ~/github/
+mkdir yt-dlp
+cd yt-dlp/
+git clone -b twitter https://github.com/0xvd/yt-dlp-exp.git
+cd ~/github/yt-dlp/yt-dlp-exp/
+python devscripts/install_deps.py --include-group pyinstaller
+python devscripts/make_lazy_extractors.py
+sudo apt install libpython3.13
+python -m bundle.pyinstaller
+sudo apt install zip pandoc
+pip install pytest
+make
+# enter venv
+cd ~/github/yt-dlp/yt-dlp-exp/
+pip install .
+cd ~/bin/
+ln -s ~/github/yt-dlp/yt-dlp-exp/yt-dlp
+```
+
+```
+yt-dlp https://x.com/i/spaces/1jGXggOwOMEKZ 2>&1 |grep -v "for reading$"
+
+down_x_space_yt-dlp-bin.sh https://x.com/i/spaces/1jGXggOwOMEKZ
+
+```
+
 
 ## alternative downloader GUIs
 
