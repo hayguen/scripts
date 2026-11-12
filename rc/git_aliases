@@ -111,6 +111,7 @@ alias gco='git checkout'
 
 unset -f ghelpers
 unset -f glg
+unset -f glgs
 unset -f glgx
 unset -f gsa
 unset -f gsd
@@ -123,7 +124,8 @@ git helper functions and aliases:
   g st              gst       - status
   gmeld                       - diff tool meld
 
-  glg  [-N]                   - log - up to N (or 20) entries
+  glg  [-N]                   - log - up to N (or 20) entries, tags on optional extra line
+  glgs [-N]                   - log simple - without tags
   glgx [-N]                   - log with both timestamps
   g lol                       - log pretty
   g lola                      - log pretty all
@@ -178,6 +180,20 @@ EOF
 }
 
 function glg {
+  # %<(25,trunc)  legt Breit fuer folgendes Feld fest
+  # %x09   waere Tabulator-Byte
+  if [ -z "$1" ]; then
+    git log --date="format-local:%a %Y-%m-%d %H:%M:%S" --pretty=format:"%D%n %<(12,trunc)%h %<(19,trunc)%an %<(23,trunc)%ad %s" -20 \
+      | sed '/^[[:space:]]*$/d' \
+      | awk '/^ [0-9a-f]+ / {printf "%4d ", ++n} !/^[0-9a-f]+ / {printf "     "} {print}'
+  else
+    git log --date="format-local:%a %Y-%m-%d %H:%M:%S" --pretty=format:"%D%n %<(12,trunc)%h %<(19,trunc)%an %<(23,trunc)%ad %s" "$@" \
+      | sed '/^[[:space:]]*$/d' \
+      | awk '/^ [0-9a-f]+ / {printf "%4d ", ++n} !/^[0-9a-f]+ / {printf "     "} {print}'
+  fi
+}
+
+function glgs {
   # %<(25,trunc)  legt Breit fuer folgendes Feld fest
   # %x09   waere Tabulator-Byte
   # https://git-scm.com/docs/pretty-formats
